@@ -5,7 +5,7 @@ const cors = require("cors");
 require("dotenv").config();
 
 // ROUTES
-const { startEmployeeCron } = require("./src/ww-family/employeeSync");
+const { router: employeeRouter, startEmployeeCron } = require("./src/ww-family/employeeSync");
 const adminFormRoutes = require("./src/hr-system/routes/adminFormRoutes");
 const approvalPriorityRoutes = require("./src/hr-system/routes/approvalPriorityRoutes");
 const publicFormRoutes = require("./src/hr-system/routes/publicFormRoutes");
@@ -23,7 +23,6 @@ app.use(express.json());
 // db connect
 mongoose.connect(process.env.MONGO_URI).then(() => {
   console.log("Mongo connected ✅");
-  startEmployeeCron();
 }).catch((err) => {
   console.error("Mongo error ❌", err);
 });
@@ -41,7 +40,7 @@ app.get("/api/health", (req, res) => {
   res.json({ ok: true });
 });
 
-
+app.use("/hr", employeeRouter);
 app.use("/api/admin/forms", adminFormRoutes);
 app.use("/api/managers", managerRoutes);
 app.use("/api/approvalPriority", approvalPriorityRoutes);
