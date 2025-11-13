@@ -54,6 +54,7 @@ async function getMyRequests(req, res) {
 }
 
 
+
 /**
  * GET /api/approvals/:flowId
  * ek flow ka full timeline
@@ -208,6 +209,55 @@ async function getPendingForApprover(req, res) {
 }
 
 
+/**
+ * GET /api/approvals/all
+ *  -> saare flows (newest first)
+ */
+async function getAllApprovals(req, res) {
+  try {
+    const flows = await ApprovalFlow.find(
+      {},
+      {
+        formName: 1,
+        status: 1,
+        createdAt: 1,
+        currentStep: 1,
+        approvals: 1,
+        requesterName: 1,
+        requesterEmail: 1,
+      }
+    )
+      .sort({ createdAt: -1 })
+      .lean();
+
+    const shaped = flows.map((f) => ({
+      _id: f._id,
+      formName: f.formName,
+      status: f.status,
+      createdAt: f.createdAt,
+      currentStep: f.currentStep,
+      requester: {
+        name: f.requesterName,
+        email: f.requesterEmail,
+      },
+      approvals: (f.approvals || []).map((a) => ({
+        role: a.role,
+        name: a.name,
+        email: a.email,
+        status: a.status,
+        comment: a.comment,
+        approvedAt: a.approvedAt,
+      })),
+    }));
+
+    return res.json(shaped);
+  } catch (err) {
+    console.error("getAllApprovals error", err);
+    return res.status(500).json({ error: err.message });
+  }
+}
+
+
 
 
 module.exports = {
@@ -215,5 +265,6 @@ module.exports = {
   getFlowStatus,
   handleApprovalAction,
   getPendingForApprover,
+  getAllApprovals,
 };
 
