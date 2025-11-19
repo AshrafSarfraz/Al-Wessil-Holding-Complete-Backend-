@@ -1,19 +1,3 @@
-// const admin = require('firebase-admin');
-// const serviceAccount = require('../../../hbs-firebase-config.json');
-
-
-// if (!admin.apps.length) {
-//   admin.initializeApp({
-//     credential: admin.credential.cert(serviceAccount),
-//   });
-// }
-
-// const db = admin.firestore(); // Firestore instance
-
-// module.exports = { admin, db };
-
-
-
 
 const admin = require("firebase-admin");
 require("dotenv").config();
