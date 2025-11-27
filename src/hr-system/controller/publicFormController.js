@@ -165,72 +165,183 @@ async function submitForm(req, res) {
         Reject: ${rejectLink}
         `.trim();
         
-            // 🎨 HTML email (for manager / first approver)
-            const html = `
-              <div style="font-family: Arial, sans-serif;  ">
-                <table width="100%" cellpadding="0" cellspacing="0" style="max-width:600px; margin:0 auto; background:#f5f5f5;  border-radius:8px; overflow:hidden;">
-                  <tr>
-                    <td style="background:#31368A; padding:16px 24px; color:#ffffff;">
-                      <table width="100%">
-                        <tr>
-                          <td style="font-size:20px; font-weight:bold ;">
-                            <!-- yahan real logo URL lagao -->
-                            <img src="https://alwessilholding.com/wp-content/uploads/elementor/thumbs/white-logo-without-bg-rcstibzjkvfhqjzwzokn5khk5v46zznyb6bizwhx3s.png" 
-                            alt="Company Logo" style="height:40px; vertical-align:middle; margin-right:8px;">
-                          </td>
-                          <td style="text-align:right; font-size:12px;">
-                          Self Service
-                          </td>
-                        </tr>
-                      </table>
-                    </td>
-                  </tr>
+        const html = `
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#f3f4f6" style="margin:0;padding:0;">
+          <tr>
+            <td align="center" style="padding:16px 8px;">
+              <!-- Main container -->
+              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;background:#ffffff;border-radius:4px;overflow:hidden;border:1px solid #e5e7eb;">
+                <!-- Header -->
+                <tr>
+                  <td bgcolor="#31368A" style="padding:16px 20px;color:#ffffff;font-family:Arial,Helvetica,sans-serif;">
+                    <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                      <tr>
+                        <td valign="middle" style="font-size:18px;font-weight:bold;line-height:1.2;">
+                          <img 
+                            src="https://alwessilholding.com/wp-content/uploads/elementor/thumbs/white-logo-without-bg-rcstibzjkvfhqjzwzokn5khk5v46zznyb6bizwhx3s.png" 
+                            alt="Company Logo" 
+                            width="130"
+                            style="display:block;border:0;outline:none;text-decoration:none;margin:0;padding:0;max-width:100%;"
+                          />
+                        </td>
+                        <td align="right" valign="middle" style="font-size:12px;">
+                          Self Service • Notification
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
         
-                  <tr>
-                    <td style="padding:24px;">
-                      <h1 style="margin:0 0 8px 0; font-size:20px; color:#333;">
-                  <strong>${formDef.displayName || formKey}</strong>
-                </h1>
+                <!-- Title / Intro -->
+                <tr>
+                  <td style="padding:20px 20px 8px 20px;font-family:Arial,Helvetica,sans-serif;">
+                    <h1 style="margin:0 0 6px 0;font-size:18px;line-height:1.4;color:#111827;">
+                      ${formDef.displayName || formKey}
+                    </h1>
+                    <p style="margin:0;font-size:14px;line-height:1.6;color:#4b5563;">
+                      A new request has been submitted and needs your review.
+                    </p>
+                  </td>
+                </tr>
+        
+                <!-- Employee details -->
+                <tr>
+                  <td style="padding:8px 20px 4px 20px;font-family:Arial,Helvetica,sans-serif;">
+                    <h2 style="margin:0 0 6px 0;font-size:14px;color:#111827;">Employee Details</h2>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding:0 20px 12px 20px;">
+                    <table width="100%" cellpadding="6" cellspacing="0" border="0" style="border-collapse:collapse;font-family:Arial,Helvetica,sans-serif;font-size:13px;">
+                      <tr>
+                        <td width="30%" style="border:1px solid #e5e7eb;font-weight:bold;background:#f9fafb;color:#111827;">
+                          Employee
+                        </td>
+                        <td style="border:1px solid #e5e7eb;color:#111827;">
+                          ${requesterName} (${requesterEmail})
+                        </td>
+                      </tr>
+                      <tr>
+                        <td width="30%" style="border:1px solid #e5e7eb;font-weight:bold;background:#f9fafb;color:#111827;">
+                          Department
+                        </td>
+                        <td style="border:1px solid #e5e7eb;color:#111827;">
+                          ${(employee && employee.department) || "-"}
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+        
+                <!-- Request details -->
+                <tr>
+                  <td style="padding:4px 20px 4px 20px;font-family:Arial,Helvetica,sans-serif;">
+                    <h2 style="margin:0 0 6px 0;font-size:14px;color:#111827;">Request Details</h2>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding:0 20px 16px 20px;">
+                    <table width="100%" cellpadding="6" cellspacing="0" border="0" style="border-collapse:collapse;font-family:Arial,Helvetica,sans-serif;font-size:13px;">
+                      ${Object.entries(answers || {})
+                        .map(
+                          ([k, v]) => `
+                            <tr>
+                              <td width="30%" style="border:1px solid #e5e7eb;font-weight:bold;background:#f9fafb;color:#111827;">
+                                ${k}
+                              </td>
+                              <td style="border:1px solid #e5e7eb;color:#111827;">
+                                ${prettyValue(v)}
+                              </td>
+                            </tr>
+                          `
+                        )
+                        .join("")}
+                    </table>
+                  </td>
+                </tr>
+        
+                <!-- Footer -->
+                <tr>
+                  <td style="padding:12px 20px 16px 20px;font-family:Arial,Helvetica,sans-serif;border-top:1px solid #e5e7eb;">
+                    <p style="margin:0;font-size:11px;line-height:1.5;color:#9ca3af;text-align:center;">
+                      This is an automated email from the Al Wessil HR workflow system.<br/>
+                      Please do not reply directly to this email.
+                    </p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+        `;
+        
 
-                 <p style="margin:0 0 16px 0; color:#555; font-size:14px;">
-                 A new request has been submitted and needs your review.
-                 </p>
+            // // 🎨 HTML email (for manager / first approver)
+            // const html = `
+            //   <div style="font-family: Arial, sans-serif;  ">
+            //     <table width="100%" cellpadding="0" cellspacing="0" style="max-width:600px; margin:0 auto; background:#f5f5f5;  border-radius:8px; overflow:hidden;">
+            //       <tr>
+            //         <td style="background:#31368A; padding:16px 24px; color:#ffffff;">
+            //           <table width="100%">
+            //             <tr>
+            //               <td style="font-size:20px; font-weight:bold ;">
+            //                 <!-- yahan real logo URL lagao -->
+            //                 <img src="https://alwessilholding.com/wp-content/uploads/elementor/thumbs/white-logo-without-bg-rcstibzjkvfhqjzwzokn5khk5v46zznyb6bizwhx3s.png" 
+            //                 alt="Company Logo" style="height:40px; vertical-align:middle; margin-right:8px;">
+            //               </td>
+            //               <td style="text-align:right; font-size:12px;">
+            //               Self Service
+            //               </td>
+            //             </tr>
+            //           </table>
+            //         </td>
+            //       </tr>
+        
+            //       <tr>
+            //         <td style="padding:24px;">
+            //           <h1 style="margin:0 0 8px 0; font-size:20px; color:#333;">
+            //       <strong>${formDef.displayName || formKey}</strong>
+            //     </h1>
+
+            //      <p style="margin:0 0 16px 0; color:#555; font-size:14px;">
+            //      A new request has been submitted and needs your review.
+            //      </p>
             
 
-                      <h3 style="margin:16px 0 8px 0; font-size:16px; color:#333;">Employee Details</h3>
-                      <table width="100%" cellpadding="6" cellspacing="0" style="border-collapse:collapse; font-size:14px;">
-                        <tr>
-                          <td style="border:1px solid #ddd; font-weight:bold; width:30%;">Employee</td>
-                          <td style="border:1px solid #ddd;">${requesterName} (${requesterEmail})</td>
-                        </tr>
-                        <tr>
-                          <td style="border:1px solid #ddd; font-weight:bold;">Department</td>
-                          <td style="border:1px solid #ddd;">${employee.department || "-"}</td>
-                        </tr>
-                      </table>
+            //           <h3 style="margin:16px 0 8px 0; font-size:16px; color:#333;">Employee Details</h3>
+            //           <table width="100%" cellpadding="6" cellspacing="0" style="border-collapse:collapse; font-size:14px;">
+            //             <tr>
+            //               <td style="border:1px solid #ddd; font-weight:bold; width:30%;">Employee</td>
+            //               <td style="border:1px solid #ddd;">${requesterName} (${requesterEmail})</td>
+            //             </tr>
+            //             <tr>
+            //               <td style="border:1px solid #ddd; font-weight:bold;">Department</td>
+            //               <td style="border:1px solid #ddd;">${employee.department || "-"}</td>
+            //             </tr>
+            //           </table>
         
-                      <h3 style="margin:16px 0 8px 0; font-size:16px; color:#333;">Request Details</h3>
-                      <table width="100%" cellpadding="6" cellspacing="0" style="border-collapse:collapse; font-size:14px;">
-                        ${Object.entries(answers || {})
-                          .map(
-                            ([k, v]) => `
-                              <tr>
-                                <td style="border:1px solid #ddd; font-weight:bold; width:30%;">${k}</td>
-                                <td style="border:1px solid #ddd;">${prettyValue(v)}</td>
-                              </tr>
-                            `
-                          )
-                          .join("")}
-                      </table>
+            //           <h3 style="margin:16px 0 8px 0; font-size:16px; color:#333;">Request Details</h3>
+            //           <table width="100%" cellpadding="6" cellspacing="0" style="border-collapse:collapse; font-size:14px;">
+            //             ${Object.entries(answers || {})
+            //               .map(
+            //                 ([k, v]) => `
+            //                   <tr>
+            //                     <td style="border:1px solid #ddd; font-weight:bold; width:30%;">${k}</td>
+            //                     <td style="border:1px solid #ddd;">${prettyValue(v)}</td>
+            //                   </tr>
+            //                 `
+            //               )
+            //               .join("")}
+            //           </table>
         
-                      <p style="margin-top:24px; font-size:12px; color:#999; text-align:center;">
-                        This is an automated email from the Al Wessil HR workflow system.
-                      </p>
-                    </td>
-                  </tr>
-                </table>
-              </div>
-            `;
+            //           <p style="margin-top:24px; font-size:12px; color:#999; text-align:center;">
+            //             This is an automated email from the Al Wessil HR workflow system.
+            //           </p>
+            //         </td>
+            //       </tr>
+            //     </table>
+            //   </div>
+            // `;
         
             await sendEmail({
               to: firstApprover.email,
